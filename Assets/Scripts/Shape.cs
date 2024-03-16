@@ -35,7 +35,9 @@
         Z_Shape,
         Z_Shape_1,
         
-        // 一个星
+        /// <summary>
+        /// 星星
+        /// </summary>
         X_Shape,
         // 凸字型
         M_Shape,
@@ -45,7 +47,9 @@
         
        
         
-        // 十字型
+        /// <summary>
+        /// 十字型
+        /// </summary>
         B_Shape,
         
       

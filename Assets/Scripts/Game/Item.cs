@@ -10,7 +10,7 @@ namespace ZXS.Game
     public class Item : MonoBehaviour
     {
         private Shape _type;
-
+        private bool lastisFull; // 用于记录星星下落的上一个位置有没有元素
         private int[,] Itemdata;
         private int midCol = 9;
         private int norMalRow;
@@ -40,6 +40,7 @@ namespace ZXS.Game
             _type = type;
             Itemdata = LevelBgBuilder.THIS.getAShapeItem(type);
             _itemSquares.Clear();
+            isHandDowning = false;
             for (int i = 0; i < Itemdata.GetLength(0); i++)
             {
                 for (int j = 0; j < Itemdata.GetLength(1); j++)
@@ -52,6 +53,11 @@ namespace ZXS.Game
                     }
                 }
             }
+            
+            
+            
+            
+            
             if (type == Shape.X_Shape)
             {
                 fallingIEtor= StartCoroutine(bbbFalling()); 
@@ -61,7 +67,7 @@ namespace ZXS.Game
                 fallingIEtor=  StartCoroutine(aaaFalling()); 
             }
             
-            
+            AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemOut);
 
         }
 
@@ -115,6 +121,24 @@ namespace ZXS.Game
             currCol -= 1;
             currRow += 1;
          
+            // 判断变现后是否已经有元素在，如果有元素了，就不允许变形
+            for (int i = 0; i < Itemdata.GetLength(0); i++)
+            {
+                for (int j = 0; j < Itemdata.GetLength(1); j++)
+                {
+                    if (Itemdata[i, j] == 1)
+                    {
+                        ItemSquare itemSquare = LevelBgBuilder.THIS.GetItemSquare(currRow - i, currCol + j);
+                        if (itemSquare._isFull && !IsSelf(currRow - i, currCol + j))
+                        {
+                            return;
+                        }
+                       
+                    }
+                }
+            }
+            
+
             for (int i = 0; i < _itemSquares.Count; i++)
             {
              
@@ -194,60 +218,25 @@ namespace ZXS.Game
             AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemMove);
         }
 
-        bool isDowning;
+        bool isHandDowning;
         public void MoveDown()
         {
+            isHandDowning = true;
             if (!GameLunch.THIS.isFalling || GameLunch.THIS.isEliminateing || isDown)
             {
                 return;
             }
-          
-            for (int i = 0; i < _itemSquares.Count; i++)
+
+            if (_type == Shape.X_Shape)
             {
-                LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(false);
-                _itemSquares[i].x--;
-            }
-            for (int i = 0; i < _itemSquares.Count; i++)
-            {
-                LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(true);
-            }  
-            AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemMove);
-            
-            foreach (var item in _itemSquares )
-            {
-                if (item.x - 1 < 0 || (LevelBgBuilder.THIS.GetItemSquare(item.x-1, item.y)._isFull && !IsSelf(item.x-1, item.y)))
+                if(LevelBgBuilder.THIS.isDownItemClo(_itemSquares[0].y,_itemSquares[0].x))
                 {
                     isDown = true;
-                    StopCoroutine(fallingIEtor);
-                    GameLunch.THIS.isFalling = false;
                     AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
-                    CheckEliminate(); 
                 }
             }
-        }
-        
-        bool isDown = false;
-        /// <summary>
-        /// 普通元素的下落
-        /// </summary>
-        /// <returns></returns>
-        IEnumerator aaaFalling()
-        {
-            
-            isDown = false;
-            while (!isDown)
+            else
             {
-                for (int i = 0; i < _itemSquares.Count; i++)
-                {
-                    LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(false);
-                    _itemSquares[i].x--;
-                }
-                for (int i = 0; i < _itemSquares.Count; i++)
-                {
-                    LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(true);
-                }  
-               
-                
                 for (int i = 0; i < _itemSquares.Count; i++)
                 {
                     if(_itemSquares[i].x-1==-1
@@ -255,34 +244,26 @@ namespace ZXS.Game
                       )
                     {
                         isDown = true;
-                      
+                        AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
                         break;
                     }
                     
                 }
-
-                if (!isDown)
-                {
-                    yield return new WaitForSeconds(ScoreAndTime.THIS.FallSpeed);
-                }
-                
             }
-            GameLunch.THIS.isFalling = false;
-            AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
-            CheckEliminate(); 
-        }
+           
 
-        /// <summary>
-        /// 星星元素的下落
-        /// </summary>
-        /// <returns></returns>
-        IEnumerator bbbFalling()
-        {
-            isDown = false;
-            bool lastisFull = false;
-            while (!isDown)
+            if (isDown)
             {
-                
+                isHandDowning = false;
+                StopCoroutine(fallingIEtor);
+                GameLunch.THIS.isFalling = false;
+                AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
+                CheckEliminate(); 
+                return;
+            }
+
+            if (_type == Shape.X_Shape)
+            {
                 for (int i = 0; i < _itemSquares.Count; i++)
                 {
                        
@@ -294,21 +275,134 @@ namespace ZXS.Game
                     lastisFull = LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y)._isFull;
                     LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(true);
                 } 
-                
-                
-                
-                if(LevelBgBuilder.THIS.isDownItemClo(_itemSquares[0].y,_itemSquares[0].x))
+            }
+            else
+            {
+                for (int i = 0; i < _itemSquares.Count; i++)
                 {
-                    isDown = true;
+                    LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(false);
+                    _itemSquares[i].x--;
                 }
-                if (!isDown)
+                for (int i = 0; i < _itemSquares.Count; i++)
                 {
-                    yield return new WaitForSeconds(ScoreAndTime.THIS.FallSpeed);
+                    LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(true);
+                }  
+                // AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemMove); 
+            }
+        }
+
+        public void MoveDownEnd()
+        {
+            isHandDowning = false;
+        }
+        bool isDown = false;
+        /// <summary>
+        /// 普通元素的下落
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator aaaFalling()
+        {
+            
+            isDown = false;
+            while (!isDown)
+            {
+                if (!isHandDowning)
+                {
+                    for (int i = 0; i < _itemSquares.Count; i++)
+                    {
+                        if(_itemSquares[i].x-1==-1
+                           ||(LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x-1, _itemSquares[i].y)._isFull && !IsSelf(_itemSquares[i].x-1, _itemSquares[i].y))
+                          )
+                        {
+                            isDown = true;
+                      
+                            break;
+                        }
+                    
+                    }
+                    if (!isDown)
+                    {
+                        for (int i = 0; i < _itemSquares.Count; i++)
+                        {
+                            LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(false);
+                            _itemSquares[i].x--;
+                        }
+                        for (int i = 0; i < _itemSquares.Count; i++)
+                        {
+                            LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(true);
+                        }  
+                    
+                    
+                    
+                    
+                        for (int i = 0; i < _itemSquares.Count; i++)
+                        {
+                            if(_itemSquares[i].x-1==-1
+                               ||(LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x-1, _itemSquares[i].y)._isFull && !IsSelf(_itemSquares[i].x-1, _itemSquares[i].y))
+                              )
+                            {
+                                AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
+                                break;
+                            }
+                    
+                        }
+                    
+                    
+                       
+                    }
+                    
                 }
+                yield return new WaitForSeconds(ScoreAndTime.THIS.FallSpeed);
+            }
+            GameLunch.THIS.isFalling = false;
+            CheckEliminate(); 
+        }
+
+        /// <summary>
+        /// 星星元素的下落
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator bbbFalling()
+        {
+            isDown = false;
+            lastisFull = false;
+            int donwCount = 0;
+            
+            while (!isDown)
+            {
+                if (!isHandDowning)
+                {
+                    if(LevelBgBuilder.THIS.isDownItemClo(_itemSquares[0].y,_itemSquares[0].x))
+                    {
+                        isDown = true;
+                    }
+                    if (!isDown)
+                    {
+                        for (int i = 0; i < _itemSquares.Count; i++)
+                        {
+                       
+                            _itemSquares[i].x--;
+                        }
+                        for (int i = 0; i < _itemSquares.Count; i++)
+                        {
+                            LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x+1, _itemSquares[i].y).SetImageFull(lastisFull);
+                            lastisFull = LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y)._isFull;
+                            LevelBgBuilder.THIS.GetItemSquare(_itemSquares[i].x, _itemSquares[i].y).SetImageFull(true);
+                        } 
+                    
+                        if(LevelBgBuilder.THIS.isDownItemClo(_itemSquares[0].y,_itemSquares[0].x))
+                        {
+                            AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
+                        }
+                   
+                    }
+                }
+                
+                yield return new WaitForSeconds(ScoreAndTime.THIS.FallSpeed);
                
             }
             GameLunch.THIS.isFalling = false;
-            AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
+           
             CheckEliminate();
         }
 

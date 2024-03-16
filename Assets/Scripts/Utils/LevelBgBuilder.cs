@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using ZXS.Config;
 using ZXS.Game;
 
@@ -120,7 +119,10 @@ namespace ZXS.Utils
                        GameLunch.THIS.fallingItem.ChangeShape();
                    }
                    
-               }      
+               } else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
+               {
+                   GameLunch.THIS.fallingItem.MoveDownEnd();
+               }    
 #endif
 
 #if UNITY_ANDROID
@@ -131,7 +133,9 @@ namespace ZXS.Utils
                    {
                        GameLunch.THIS.fallingItem.ChangeShape();
                    }
-               }
+               }else if(Input.GetMouseButtonUp(0) && isHandDowning){
+                    GameLunch.THIS.fallingItem.MoveDownEnd();
+                }
                else
                {
                    foreach (Touch touch in Input.touches)
