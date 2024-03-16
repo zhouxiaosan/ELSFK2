@@ -21,7 +21,7 @@ namespace ZXS.Game
         private void Awake()
         {
             image = GetComponent<Image>();
-            _sprite = AssetsLoadManager.Instance.LoadAsset<Sprite>("Textures/jin2");
+            _sprite = AssetsLoadManager.Instance.LoadAsset<Sprite>("Textures/c1");
             boom = transform.Find("Boom");
         }
 

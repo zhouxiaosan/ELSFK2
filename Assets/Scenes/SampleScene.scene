@@ -2024,12 +2024,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8e5703a71e3e4346bd86258c6aa695b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemMove: {fileID: 8300000, guid: 0994c12e202f342459a4212e7287f7e8, type: 3}
+  itemMove: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
   itemChange: {fileID: 8300000, guid: 0c008ee3ee72a4362a35be25fa5de043, type: 3}
   itemEliminate: {fileID: 8300000, guid: 6e8772b49f34d402a90016ed445d8a2f, type: 3}
   itemFall: {fileID: 8300000, guid: 130a177e727814a2ea78a886ab72213d, type: 3}
   itemPostpone: {fileID: 8300000, guid: 3becec1909f194046945d85ac1077772, type: 3}
-  itemOut: {fileID: 8300000, guid: 7cc057bed53baf34799f52aab3c84800, type: 3}
+  itemOut: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
 --- !u!1 &1670050893
 GameObject:
   m_ObjectHideFlags: 0
@@ -2440,14 +2440,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.7019608}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.23529412}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 786e0f3e18fbe97479a12352e0dfb15b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9f90da1b9ead6264ba5806192ac398ed, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
