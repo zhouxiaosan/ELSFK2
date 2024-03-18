@@ -58,8 +58,17 @@ namespace ZXS.Game
             targetText.text = targetScore.ToString();
         }
 
+        public void ReSetTimeAndScore()
+        {
+            startTime = Time.time; // 游戏开始时的时间
+            targetScore = 500;
+            scroeValue = 0;
+            scroeText.text ="Score:"+ scroeValue.ToString();
+        }
+        
         private void Update()
         {
+            if (GameLunch.THIS.isGameOver) return;
             float t = Time.time - startTime; // 计算游戏开始到现在的时间差
 
             // 将时间差转换为小时、分钟和秒
@@ -78,15 +87,14 @@ namespace ZXS.Game
             scroeValue += rowNum * 10*rowNum;
             scroeText.text ="Score:"+ scroeValue.ToString();
 
-            if (oldScore > 30)
+            if (oldScore > 1500)
             {
                 _slider.value = 1;
             }
             else
             {
-                if (oldScore < 10 && scroeValue >= 10)
+                if (oldScore < 500 && scroeValue >= 500)
                 {
-                
                     Debug.Log("=============解锁星星");
                     isTuPo = true;
                     fallSpeed -= 0.1f;
@@ -94,7 +102,7 @@ namespace ZXS.Game
                     targetScore = 1000;
                     targetText.text = targetScore.ToString();
                 }
-                if (oldScore < 20 && scroeValue >= 20)
+                if (oldScore < 1000 && scroeValue >= 1000)
                 {
                     Debug.Log("=============解锁凸字");
                     isTuPo = true;
@@ -103,7 +111,7 @@ namespace ZXS.Game
                     targetScore = 1500;
                     targetText.text = targetScore.ToString();
                 }
-                if (oldScore < 30 && scroeValue >= 30)
+                if (oldScore < 1500 && scroeValue >= 1500)
                 {
                     Debug.Log("=============解锁十字");
                     isTuPo = true;

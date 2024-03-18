@@ -45,19 +45,7 @@ namespace ZXS.Utils
                     _squares.Add(itemSquare);
                     Color _color = Color.white;
                     item.GetComponent<RectTransform>().anchoredPosition = new Vector2(-475+(j * 50), -975+(i * 50));
-                    /*if (i % 2 == 0)
-                    {
-                        if (j % 2 == 0)
-                        {
-                            _color = new Color(0.5f,0.5f,0.5f,0.2f); 
-                        }
-                        else
-                        {
-                            _color = new Color(1f,1f,1f,0.2f); 
-                        }
-                    }
-                    else
-                    {*/
+                   
                         if (j % 2 == 0)
                         {
                             _color = new Color(0.8f,0.8f,0.8f,0.2f); 
@@ -66,12 +54,40 @@ namespace ZXS.Utils
                         {
                             _color = new Color(0.5f,0.5f,0.5f,0.2f); 
                         } 
-                    // }
                     itemSquare.SetRowCol(i,j,_color);
+                }
+            }
+
+            //setTest();
+        }
+
+
+        public void ReStartGame()
+        {
+            ScoreAndTime.THIS.ReSetTimeAndScore();
+            
+            for (int i = 0; i < maxRow; i++)
+            {
+                for (int j = 0; j < maxCol; j++)
+                {
+                    GetItemSquare(i,j).SetImageFull(false);
                 }
             }
         }
 
+        private void setTest()
+        {
+            for (int i = 0; i < maxRow-20; i++)
+            {
+                for (int j = 0; j < maxCol; j++)
+                {
+                    
+                    GetItemSquare(i,j).SetImageFull(j==10?false:true);
+                }
+            } 
+        }
+        
+        
        public ItemSquare GetItemSquare(int row, int col)
        {
             foreach (var itemSquare in _squares)
@@ -133,9 +149,9 @@ namespace ZXS.Utils
                    {
                        GameLunch.THIS.fallingItem.ChangeShape();
                    }
-               }else if(Input.GetMouseButtonUp(0) && isHandDowning){
+               }else if(Input.GetMouseButtonUp(0) && (GameLunch.THIS.fallingItem.isVerticaling || GameLunch.THIS.fallingItem.isHorizontalling)){
                     GameLunch.THIS.fallingItem.MoveDownEnd();
-                }
+               }
                else
                {
                    foreach (Touch touch in Input.touches)
@@ -414,7 +430,7 @@ namespace ZXS.Utils
                {
                    var direction = fingerDownPosition.y - fingerUpPosition.y > 0 ? "Up" : "Down";
                    Debug.Log("Vertical Swipe Detected. Direction: " + direction);
-                   if ("Down".Equals(direction))
+                   if ("Down".Equals(direction) && !GameLunch.Instance.fallingItem.isHorizontalling)
                    {
                        GameLunch.THIS.fallingItem.MoveDown();
                    }
@@ -424,17 +440,24 @@ namespace ZXS.Utils
                    var direction = fingerDownPosition.x - fingerUpPosition.x > 0 ? "Right" : "Left";
                    Debug.Log("Horizontal Swipe Detected. Direction: " + direction);
 
-                   if ("Right".Equals(direction))
+                   if ("Right".Equals(direction) && !GameLunch.THIS.fallingItem.isVerticaling)
                    {
                        GameLunch.THIS.fallingItem.MoveRight();
                    }
-                   else if ("Left".Equals(direction))
+                   else if ("Left".Equals(direction) && !GameLunch.THIS.fallingItem.isVerticaling)
                    {
                          GameLunch.THIS.fallingItem.MoveLeft();
                    }
                    
                }
                fingerUpPosition = fingerDownPosition;
+           }
+           else
+           {
+               if (GameLunch.THIS.fallingItem.isVerticaling)
+               {
+                   GameLunch.THIS.fallingItem.MoveDown();
+               }
            }
        }
        
