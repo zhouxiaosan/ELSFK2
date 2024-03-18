@@ -20,7 +20,7 @@ public class GameLunch : UnitySingleton<GameLunch>
     {
         THIS = this;
         ItemPre = AssetsLoadManager.Instance.LoadAsset<GameObject>("Item");
-        gameOver = transform.Find("Canvas/LevelBox/GameOver").gameObject;
+        gameOver = transform.Find("Canvas/GameOver").gameObject;
         isGameOver = false;
     }
 
@@ -29,14 +29,25 @@ public class GameLunch : UnitySingleton<GameLunch>
         StartCoroutine(LevelBegin());
     }
 
+    public void Restart()
+    {
+        Debug.Log("==============新游戏");
+        gameOver.SetActive(false);
+        isGameOver = false;
+        isFalling = false;
+        isEliminateing = false;
+        LevelBgBuilder.THIS.ReStartGame();
+        StartCoroutine(LevelBegin());
+    }
     
     IEnumerator LevelBegin()
     {
-        while (true)
+        while (!isGameOver)
         {
             if(!isFalling && !isEliminateing)
-            {
+            { 
                 Shape shape = getARandomShape();
+              //Shape shape = Shape.I_Shape;
                 if (fallingItem == null)
                 {
                     Item item = Instantiate(ItemPre).GetComponent<Item>();
@@ -55,11 +66,11 @@ public class GameLunch : UnitySingleton<GameLunch>
     public Shape getARandomShape()
     {
         Shape range = Shape.B_Shape;
-        if (ScoreAndTime.THIS.scroeValue < 10)
+        if (ScoreAndTime.THIS.scroeValue < 500)
         {
             // 正常
             range = (Shape)Random.Range(0, 19);
-        }else if (ScoreAndTime.THIS.scroeValue < 20)
+        }else if (ScoreAndTime.THIS.scroeValue < 1000)
         {
             if (ScoreAndTime.THIS.IsTuPo)
             {
@@ -71,7 +82,7 @@ public class GameLunch : UnitySingleton<GameLunch>
                 range = (Shape)Random.Range(0, 20);
             }
          
-        }else if (ScoreAndTime.THIS.scroeValue < 30)
+        }else if (ScoreAndTime.THIS.scroeValue <1500)
         {
             if (ScoreAndTime.THIS.IsTuPo)
             {
@@ -84,7 +95,7 @@ public class GameLunch : UnitySingleton<GameLunch>
             }
            
         }
-        else if (ScoreAndTime.THIS.scroeValue >= 30)
+        else if (ScoreAndTime.THIS.scroeValue >= 1500)
         {
             if (ScoreAndTime.THIS.IsTuPo)
             {
@@ -103,6 +114,7 @@ public class GameLunch : UnitySingleton<GameLunch>
     
     public void GameOver()
     {
+        isGameOver = true;
         gameOver.SetActive(true);
     }
     

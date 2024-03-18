@@ -40,7 +40,8 @@ namespace ZXS.Game
             _type = type;
             Itemdata = LevelBgBuilder.THIS.getAShapeItem(type);
             _itemSquares.Clear();
-            isHandDowning = false;
+            isVerticaling = false;
+            isHorizontalling = false;
             for (int i = 0; i < Itemdata.GetLength(0); i++)
             {
                 for (int j = 0; j < Itemdata.GetLength(1); j++)
@@ -66,7 +67,6 @@ namespace ZXS.Game
             {
                 fallingIEtor=  StartCoroutine(aaaFalling()); 
             }
-            
             AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemOut);
 
         }
@@ -218,10 +218,11 @@ namespace ZXS.Game
             AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemMove);
         }
 
-        bool isHandDowning;
+       public bool isVerticaling;   
+       public bool isHorizontalling;   
         public void MoveDown()
         {
-            isHandDowning = true;
+            isVerticaling = true;
             if (!GameLunch.THIS.isFalling || GameLunch.THIS.isEliminateing || isDown)
             {
                 return;
@@ -254,7 +255,8 @@ namespace ZXS.Game
 
             if (isDown)
             {
-                isHandDowning = false;
+                isVerticaling = false;
+                isHorizontalling = false;
                 StopCoroutine(fallingIEtor);
                 GameLunch.THIS.isFalling = false;
                 AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemFall);
@@ -293,7 +295,8 @@ namespace ZXS.Game
 
         public void MoveDownEnd()
         {
-            isHandDowning = false;
+            isVerticaling = false;
+            isHorizontalling = false;
         }
         bool isDown = false;
         /// <summary>
@@ -306,7 +309,7 @@ namespace ZXS.Game
             isDown = false;
             while (!isDown)
             {
-                if (!isHandDowning)
+                if (!isVerticaling)
                 {
                     for (int i = 0; i < _itemSquares.Count; i++)
                     {
@@ -370,7 +373,7 @@ namespace ZXS.Game
             
             while (!isDown)
             {
-                if (!isHandDowning)
+                if (!isVerticaling)
                 {
                     if(LevelBgBuilder.THIS.isDownItemClo(_itemSquares[0].y,_itemSquares[0].x))
                     {
@@ -451,12 +454,32 @@ namespace ZXS.Game
 
             if (wantEliminateRow.Count > 0)
             {
-
+               
                 GameLunch.THIS.isEliminateing = true;
-                for (int z = 0; z < wantEliminateRow.Count; z++)
+                for (int z = wantEliminateRow.Count-1; z >=0; z--)
                 {
-                 
-                    if (z % 2 == 0)
+                    AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemEliminate);
+                    for (int i = 0; i < LevelBgBuilder.THIS.maxCol; i++)
+                    {
+                        LevelBgBuilder.THIS.GetItemSquare(wantEliminateRow[z], i).SetImageFull(false);
+                        LevelBgBuilder.THIS.GetItemSquare(wantEliminateRow[z], i).showBoom();
+                       
+                    } 
+                    yield return new WaitForSeconds(0.4f);
+
+                    for (int x = wantEliminateRow[z]; x < LevelBgBuilder.THIS.maxRow-1; x++)
+                    {
+                        for (int j = 0; j < LevelBgBuilder.THIS.maxCol; j++)
+                        {
+                        
+                            LevelBgBuilder.THIS.GetItemSquare(x, j).SetImageFull((z+1 >=LevelBgBuilder.THIS.maxRow)?false:LevelBgBuilder.THIS.GetItemSquare(x+1, j)._isFull);
+                        }
+
+                    }
+                   
+                    AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemPostpone);
+                    yield return new WaitForSeconds(0.4f);
+                    /*if (z % 2 == 0)
                     {
                         for (int i = 0; i < LevelBgBuilder.THIS.maxCol; i++)
                         {
@@ -473,21 +496,12 @@ namespace ZXS.Game
                             LevelBgBuilder.THIS.GetItemSquare(wantEliminateRow[z], i).showBoom();
                             yield return new WaitForSeconds(0.01f);
                         }  
-                    }
+                    }*/
                     
                 }
-                
             
-                for (int i = wantEliminateRow[0]; i < LevelBgBuilder.THIS.maxRow-1; i++)
-                {
-                    
-                    for (int j = 0; j < LevelBgBuilder.THIS.maxCol; j++)
-                    {
-                            
-                        LevelBgBuilder.THIS.GetItemSquare(i, j).SetImageFull((i+wantEliminateRow.Count >=LevelBgBuilder.THIS.maxRow)?false:LevelBgBuilder.THIS.GetItemSquare(i+wantEliminateRow.Count, j)._isFull);
-                    }
-                }
-                AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemPostpone);
+            
+                
                 ScoreAndTime.THIS.ScroeUp(wantEliminateRow.Count);
                 GameLunch.THIS.isEliminateing = false;
                 

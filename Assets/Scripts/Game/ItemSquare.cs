@@ -36,7 +36,7 @@ namespace ZXS.Game
         public void showBoom()
         {
             boom.gameObject.SetActive(true);
-            AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemEliminate);
+           // AudioBase.Instance.PlayOneShot(AudioBase.Instance.itemEliminate);
             StartCoroutine(autoHideBoom());
         }
 
